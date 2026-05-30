@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consultas Importantes — Licorería BD II</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #21242f;
+      --border: #2e3244;
+      --accent: #7c6af7;
+      --accent2: #56cfb2;
+      --accent3: #f7a76c;
+      --red: #f76c6c;
+      --text: #e2e4f0;
+      --text2: #8b90a8;
+      --code-bg: #12141c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #1a1d27 0%, #12141c 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 24px 32px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: var(--text2);
+      font-size: 0.95rem;
+    }
+
+    /* ── BADGE CHIPS ── */
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      color: var(--text2);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 28px;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+
+    .card:hover { border-color: var(--accent); }
+
+    /* ── CARD HEADER ── */
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 22px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), #5b52cc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: #fff;
+    }
+
+    .card-title { flex: 1; }
+    .card-title h2 { font-size: 1rem; font-weight: 600; }
+    .card-title .subtitle { font-size: 0.8rem; color: var(--text2); margin-top: 2px; }
+
+    .tag {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tag-join    { background: #1e2d4a; color: #6fa8dc; border: 1px solid #2a4066; }
+    .tag-sub     { background: #2a1e40; color: #b39ddb; border: 1px solid #3d2a60; }
+    .tag-group   { background: #1e3a2a; color: #81c784; border: 1px solid #2a5038; }
+    .tag-update  { background: #3a2a1e; color: #ffb74d; border: 1px solid #5a3e28; }
+    .tag-insert  { background: #1e3538; color: #4dd0e1; border: 1px solid #2a5054; }
+    .tag-delete  { background: #3a1e1e; color: #ef9a9a; border: 1px solid #5a2a2a; }
+    .tag-enum    { background: #2d2a1e; color: #fff176; border: 1px solid #504a28; }
+    .tag-var     { background: #1e2a38; color: #90caf9; border: 1px solid #2a4054; }
+    .tag-crypt   { background: #2a1e30; color: #ce93d8; border: 1px solid #3e2a4a; }
+    .tag-trigger { background: #2a1e1e; color: #f48fb1; border: 1px solid #4a2a2a; }
+
+    .chevron {
+      width: 20px;
+      height: 20px;
+      fill: var(--text2);
+      transition: transform .25s;
+      flex-shrink: 0;
+    }
+
+    .card.open .chevron { transform: rotate(180deg); }
+
+    /* ── CARD BODY ── */
+    .card-body { display: none; padding: 22px; }
+    .card.open .card-body { display: block; }
+
+    /* ── ANALYSIS GRID ── */
+    .analysis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .info-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .info-box .label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--accent2);
+      margin-bottom: 6px;
+    }
+
+    .info-box p { font-size: 0.85rem; color: var(--text2); }
+
+    /* ── IMPORTANT BOX ── */
+    .important {
+      background: #1b1d2e;
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+
+    .important .label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    /* ── CODE BLOCK ── */
+    .code-wrap {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0d0f18;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-bar span { font-size: 0.72rem; color: var(--text2); }
+
+    .copy-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+
+    .copy-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .copy-btn.copied { background: var(--accent2); color: #0f1117; border-color: var(--accent2); }
+
+    pre {
+      background: var(--code-bg);
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.82rem;
+      line-height: 1.65;
+      tab-size: 2;
+    }
+
+    /* ── SQL SYNTAX HIGHLIGHT ── */
+    .k  { color: #7c6af7; font-weight: 600; }   /* keywords */
+    .f  { color: #56cfb2; }                       /* functions */
+    .s  { color: #f7c26c; }                       /* strings */
+    .c  { color: #4a5068; font-style: italic; }   /* comments */
+    .n  { color: #f0e6a2; }                       /* names/identifiers */
+    .op { color: #f76c6c; }                       /* operators */
+    .num-lit { color: #f7a76c; }                  /* numbers */
+
+    /* ── RESULT BOX ── */
+    .result {
+      margin-top: 16px;
+      background: #111420;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: var(--text2);
+    }
+
+    .result .label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--accent3);
+      margin-bottom: 6px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.8rem;
+      color: var(--text2);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Consultas Importantes — Sistema Licorería</h1>
+  <p>Bases de Datos II &nbsp;|&nbsp; MariaDB 10.4 &nbsp;|&nbsp; 15 consultas con análisis</p>
+  <div class="badges">
+    <span class="badge">JOINs</span>
+    <span class="badge">Subconsultas</span>
+    <span class="badge">GROUP BY + HAVING</span>
+    <span class="badge">UPDATE / DELETE con JOIN</span>
+    <span class="badge">ENUM / SET</span>
+    <span class="badge">INSERT INTO SELECT</span>
+    <span class="badge">Variables de usuario</span>
+    <span class="badge">Encriptación SHA1 / MD5</span>
+    <span class="badge">Trigger</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 1 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card open">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">1</div>
+      <div class="card-title">
+        <h2>INNER JOIN doble — Ventas con cliente y empleado</h2>
+        <div class="subtitle">ventas · clientes · empleados</div>
+      </div>
+      <span class="tag tag-join">JOIN</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tablas</div>
+          <p>ventas (central) → clientes (FK cedula_cliente) → empleados (FK cedula_empleado)</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Reemplaza las cédulas por los nombres reales de cliente y empleado en cada venta.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>9 filas — excluye la venta #8 porque su cliente es NULL (anónima).</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        Es el patrón fundamental del modelo: ventas solo guarda claves foráneas; para leer nombres siempre hay que hacer JOIN. INNER JOIN descarta automáticamente las filas sin coincidencia (NULL), por eso no aparece la venta anónima.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">SELECT</span> <span class="n">v</span>.id_venta,
+       <span class="n">c</span>.nombre         <span class="k">AS</span> cliente,
+       <span class="n">e</span>.nombre         <span class="k">AS</span> empleado,
+       <span class="n">v</span>.fecha_venta,
+       <span class="n">v</span>.total_venta,
+       <span class="n">v</span>.metodo_pago
+<span class="k">FROM</span> ventas <span class="n">v</span>
+<span class="k">INNER JOIN</span> clientes  <span class="n">c</span> <span class="k">ON</span> <span class="n">v</span>.cedula_cliente  <span class="op">=</span> <span class="n">c</span>.cedula
+<span class="k">INNER JOIN</span> empleados <span class="n">e</span> <span class="k">ON</span> <span class="n">v</span>.cedula_empleado <span class="op">=</span> <span class="n">e</span>.cedula;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 2 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">2</div>
+      <div class="card-title">
+        <h2>LEFT JOIN + COALESCE — Todas las ventas (incluye anónimas)</h2>
+        <div class="subtitle">ventas · clientes (LEFT) · empleados</div>
+      </div>
+      <span class="tag tag-join">JOIN</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tablas</div>
+          <p>ventas → LEFT JOIN clientes (puede ser NULL) + INNER JOIN empleados</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Trae las 10 ventas. COALESCE reemplaza NULL por "Cliente Anónimo".</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>10 filas — venta #8 aparece como "Cliente Anónimo".</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        Diferencia clave: INNER JOIN descarta nulos, LEFT JOIN los conserva. COALESCE(valor, 'default') es el patrón estándar para sustituir NULL por un texto legible. En ventas reales siempre habrá compras sin cliente registrado.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">SELECT</span> <span class="n">v</span>.id_venta,
+       <span class="f">COALESCE</span>(<span class="n">c</span>.nombre, <span class="s">'Cliente Anónimo'</span>) <span class="k">AS</span> cliente,
+       <span class="n">e</span>.nombre                               <span class="k">AS</span> empleado,
+       <span class="n">v</span>.total_venta,
+       <span class="n">v</span>.metodo_pago
+<span class="k">FROM</span> ventas <span class="n">v</span>
+<span class="k">LEFT  JOIN</span> clientes  <span class="n">c</span> <span class="k">ON</span> <span class="n">v</span>.cedula_cliente  <span class="op">=</span> <span class="n">c</span>.cedula
+<span class="k">INNER JOIN</span> empleados <span class="n">e</span> <span class="k">ON</span> <span class="n">v</span>.cedula_empleado <span class="op">=</span> <span class="n">e</span>.cedula;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 3 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">3</div>
+      <div class="card-title">
+        <h2>LEFT JOIN + IS NULL — Clientes que NUNCA han comprado</h2>
+        <div class="subtitle">clientes · ventas (LEFT)</div>
+      </div>
+      <span class="tag tag-join">Anti-Join</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tablas</div>
+          <p>clientes (maestra) + LEFT JOIN ventas. Filas sin venta → v.id_venta = NULL.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Identifica clientes registrados sin ninguna venta asociada.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>Clientes sin historial — candidatos a campañas de activación.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        Patrón "anti-join con LEFT JOIN": más eficiente que NOT IN en tablas grandes. LEFT JOIN trae todos los clientes; WHERE v.id_venta IS NULL filtra solo los que no tienen fila coincidente en ventas.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">SELECT</span> <span class="n">c</span>.cedula, <span class="n">c</span>.nombre, <span class="n">c</span>.email
+<span class="k">FROM</span> clientes <span class="n">c</span>
+<span class="k">LEFT JOIN</span> ventas <span class="n">v</span> <span class="k">ON</span> <span class="n">c</span>.cedula <span class="op">=</span> <span class="n">v</span>.cedula_cliente
+<span class="k">WHERE</span> <span class="n">v</span>.id_venta <span class="k">IS NULL</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 4 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">4</div>
+      <div class="card-title">
+        <h2>JOIN triple + GROUP BY — Ingresos por tipo de licor</h2>
+        <div class="subtitle">productos · detalle_ventas · ventas</div>
+      </div>
+      <span class="tag tag-group">GROUP BY</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tablas</div>
+          <p>Cadena A→B→C: productos → detalle_ventas → ventas</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Calcula unidades e ingresos por tipo de licor en ventas completadas.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>Una fila por tipo_licor con totales, ordenada de mayor a menor ingreso.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        Demuestra el JOIN en cadena (tres tablas). El WHERE sobre ventas.estado filtra datos antes de agrupar; si se pusiera en HAVING, filtraría grupos ya formados (resultado diferente). Este reporte identifica qué categoría genera más dinero.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">SELECT</span> <span class="n">p</span>.tipo_licor,
+       <span class="f">SUM</span>(<span class="n">dv</span>.cantidad)  <span class="k">AS</span> unidades_vendidas,
+       <span class="f">SUM</span>(<span class="n">dv</span>.subtotal)  <span class="k">AS</span> ingresos_totales
+<span class="k">FROM</span> productos <span class="n">p</span>
+<span class="k">JOIN</span> detalle_ventas <span class="n">dv</span> <span class="k">ON</span> <span class="n">p</span>.id_producto <span class="op">=</span> <span class="n">dv</span>.id_producto
+<span class="k">JOIN</span> ventas <span class="n">v</span>          <span class="k">ON</span> <span class="n">dv</span>.id_venta   <span class="op">=</span> <span class="n">v</span>.id_venta
+<span class="k">WHERE</span> <span class="n">v</span>.estado <span class="op">=</span> <span class="s">'Completada'</span>
+<span class="k">GROUP BY</span> <span class="n">p</span>.tipo_licor
+<span class="k">ORDER BY</span> ingresos_totales <span class="k">DESC</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 5 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">5</div>
+      <div class="card-title">
+        <h2>GROUP BY + HAVING — Empleados con ventas &gt; $200.000</h2>
+        <div class="subtitle">empleados · ventas</div>
+      </div>
+      <span class="tag tag-group">HAVING</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tablas</div>
+          <p>empleados + JOIN ventas, agrupados por empleado.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Filtra solo empleados cuyo monto total de ventas supera $200.000.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>Solo los empleados de alto desempeño — los que más venden.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        Diferencia fundamental WHERE vs HAVING: WHERE filtra filas antes de agrupar; HAVING filtra grupos después. No se puede escribir WHERE SUM(...) — es error de sintaxis. HAVING es el único lugar válido para condiciones sobre funciones de agregado.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">SELECT</span> <span class="n">e</span>.nombre, <span class="n">e</span>.cargo,
+       <span class="f">COUNT</span>(<span class="n">v</span>.id_venta)   <span class="k">AS</span> cant_ventas,
+       <span class="f">SUM</span>(<span class="n">v</span>.total_venta)  <span class="k">AS</span> total_vendido
+<span class="k">FROM</span> empleados <span class="n">e</span>
+<span class="k">JOIN</span> ventas <span class="n">v</span> <span class="k">ON</span> <span class="n">e</span>.cedula <span class="op">=</span> <span class="n">v</span>.cedula_empleado
+<span class="k">GROUP BY</span> <span class="n">e</span>.cedula, <span class="n">e</span>.nombre, <span class="n">e</span>.cargo
+<span class="k">HAVING</span> <span class="f">SUM</span>(<span class="n">v</span>.total_venta) <span class="op">&gt;</span> <span class="num-lit">200000</span>
+<span class="k">ORDER BY</span> total_vendido <span class="k">DESC</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 6 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">6</div>
+      <div class="card-title">
+        <h2>Subconsulta escalar — Productos sobre el precio promedio</h2>
+        <div class="subtitle">productos (exterior + interior)</div>
+      </div>
+      <span class="tag tag-sub">Subconsulta</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tipo de subconsulta</div>
+          <p>Escalar: devuelve exactamente 1 fila × 1 columna (el promedio).</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Calcula AVG internamente y lo usa como umbral para filtrar productos caros.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>~5 productos premium: Buchanans, Santa Teresa, Old Parr, Cuervo, Absolut.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        La subconsulta escalar se ejecuta una vez; el motor guarda el resultado y lo compara con cada fila de la consulta exterior. Permite filtrar con valores calculados dinámicamente sin necesidad de conocer el promedio de antemano.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">SELECT</span> nombre, tipo_licor, precio_venta
+<span class="k">FROM</span> productos
+<span class="k">WHERE</span> precio_venta <span class="op">&gt;</span> (<span class="k">SELECT</span> <span class="f">AVG</span>(precio_venta) <span class="k">FROM</span> productos)
+<span class="k">ORDER BY</span> precio_venta <span class="k">DESC</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 7 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">7</div>
+      <div class="card-title">
+        <h2>Subconsulta en FROM (tabla derivada) — Empleados con &gt;1 venta</h2>
+        <div class="subtitle">empleados · ventas (JOIN dentro de la subconsulta)</div>
+      </div>
+      <span class="tag tag-sub">Tabla derivada</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tipo de subconsulta</div>
+          <p>En FROM: crea una tabla virtual "emp_ventas" con el conteo por empleado.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Filtra los empleados que procesaron más de una venta.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>Laura Martínez (3), Diego Castro (2), Sandra Rojas (2).</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        Permite aplicar un WHERE sobre el resultado de un GROUP BY, algo imposible directamente. El alias AS emp_ventas es obligatorio en MariaDB. Más legible que anidar HAVING cuando la lógica exterior es compleja.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">SELECT</span> emp_ventas.nombre, emp_ventas.cargo, emp_ventas.total_ventas
+<span class="k">FROM</span> (
+    <span class="k">SELECT</span> <span class="n">e</span>.nombre, <span class="n">e</span>.cargo, <span class="f">COUNT</span>(<span class="n">v</span>.id_venta) <span class="k">AS</span> total_ventas
+    <span class="k">FROM</span> empleados <span class="n">e</span>
+    <span class="k">JOIN</span> ventas <span class="n">v</span> <span class="k">ON</span> <span class="n">e</span>.cedula <span class="op">=</span> <span class="n">v</span>.cedula_empleado
+    <span class="k">GROUP BY</span> <span class="n">e</span>.cedula, <span class="n">e</span>.nombre, <span class="n">e</span>.cargo
+) <span class="k">AS</span> emp_ventas
+<span class="k">WHERE</span> emp_ventas.total_ventas <span class="op">&gt;</span> <span class="num-lit">1</span>
+<span class="k">ORDER BY</span> emp_ventas.total_ventas <span class="k">DESC</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 8 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">8</div>
+      <div class="card-title">
+        <h2>DELETE + NOT IN — Eliminar clientes sin historial</h2>
+        <div class="subtitle">clientes · ventas (subconsulta)</div>
+      </div>
+      <span class="tag tag-delete">DELETE</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tablas</div>
+          <p>DELETE en clientes; subconsulta obtiene cédulas de ventas.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Elimina clientes que no tienen ninguna venta registrada.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Trampa importante</div>
+          <p>Sin IS NOT NULL en la subconsulta, un NULL anularía NOT IN para todas las filas.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        El bug clásico de NOT IN: si la subconsulta devuelve algún NULL, la expresión X NOT IN (..., NULL, ...) siempre es UNKNOWN (nunca TRUE) y no se elimina nada. El WHERE cedula_cliente IS NOT NULL es la salvaguarda obligatoria.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">DELETE FROM</span> clientes
+<span class="k">WHERE</span> cedula <span class="k">NOT IN</span> (
+    <span class="k">SELECT DISTINCT</span> cedula_cliente
+    <span class="k">FROM</span> ventas
+    <span class="k">WHERE</span> cedula_cliente <span class="k">IS NOT NULL</span>
+);</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 9 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">9</div>
+      <div class="card-title">
+        <h2>UPDATE con JOIN — Descuento 10% en cervezas</h2>
+        <div class="subtitle">detalle_ventas · productos</div>
+      </div>
+      <span class="tag tag-update">UPDATE + JOIN</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tablas</div>
+          <p>detalle_ventas (se modifica) + JOIN productos (fuente del filtro tipo_licor).</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Aplica 10% de descuento y recalcula subtotal en líneas de Cerveza.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>Cerveza Poker y Corona quedan con descuento y subtotal al 90%.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        UPDATE con JOIN es exclusivo de MySQL/MariaDB (no estándar SQL). Permite modificar una tabla usando datos de otra sin subconsultas. ROUND(..., 2) es obligatorio en operaciones monetarias para evitar errores de punto flotante.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">UPDATE</span> detalle_ventas <span class="n">dv</span>
+    <span class="k">JOIN</span> productos <span class="n">p</span> <span class="k">ON</span> <span class="n">dv</span>.id_producto <span class="op">=</span> <span class="n">p</span>.id_producto
+    <span class="k">SET</span> <span class="n">dv</span>.descuento <span class="op">=</span> <span class="f">ROUND</span>(<span class="n">dv</span>.precio_unitario <span class="op">*</span> <span class="num-lit">0.10</span>, <span class="num-lit">2</span>),
+        <span class="n">dv</span>.subtotal  <span class="op">=</span> <span class="f">ROUND</span>(<span class="n">dv</span>.cantidad <span class="op">*</span> <span class="n">dv</span>.precio_unitario <span class="op">*</span> <span class="num-lit">0.90</span>, <span class="num-lit">2</span>)
+<span class="k">WHERE</span> <span class="n">p</span>.tipo_licor <span class="op">=</span> <span class="s">'Cerveza'</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 10 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">10</div>
+      <div class="card-title">
+        <h2>UPDATE en cascada (JOIN triple) — Cancelar venta y reponer stock</h2>
+        <div class="subtitle">ventas · detalle_ventas · productos</div>
+      </div>
+      <span class="tag tag-update">Cascada</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tablas modificadas</div>
+          <p>ventas (estado → Cancelada) Y productos (stock_actual + cantidad devuelta).</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Cancela la venta y repone inventario en una sola sentencia.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>Venta #7 = Cancelada; Aguardiente Antioqueño recupera sus unidades.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        Un UPDATE modifica dos tablas distintas al mismo tiempo. Sin esta técnica habría que lanzar dos sentencias separadas con riesgo de inconsistencia si la segunda falla. El JOIN triple v→dv→p es necesario para "llegar" a productos partiendo del id_venta.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">UPDATE</span> ventas <span class="n">v</span>
+    <span class="k">JOIN</span> detalle_ventas <span class="n">dv</span> <span class="k">ON</span> <span class="n">v</span>.id_venta     <span class="op">=</span> <span class="n">dv</span>.id_venta
+    <span class="k">JOIN</span> productos <span class="n">p</span>       <span class="k">ON</span> <span class="n">dv</span>.id_producto <span class="op">=</span> <span class="n">p</span>.id_producto
+    <span class="k">SET</span> <span class="n">v</span>.estado       <span class="op">=</span> <span class="s">'Cancelada'</span>,
+        <span class="n">p</span>.stock_actual <span class="op">=</span> <span class="n">p</span>.stock_actual <span class="op">+</span> <span class="n">dv</span>.cantidad
+<span class="k">WHERE</span> <span class="n">v</span>.id_venta <span class="op">=</span> <span class="num-lit">7</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 11 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">11</div>
+      <div class="card-title">
+        <h2>ENUM + SET + FIND_IN_SET — Vendedores sin miércoles</h2>
+        <div class="subtitle">empleados</div>
+      </div>
+      <span class="tag tag-enum">ENUM / SET</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tipo ENUM</div>
+          <p>cargo: valor único de lista predefinida. Se filtra con = o IN por texto o índice numérico.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Tipo SET</div>
+          <p>dias_labora: múltiples valores seleccionables. Se busca con FIND_IN_SET().</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>Vendedores cuyo horario no incluye el miércoles.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        ENUM almacena un valor único de un dominio fijo; SET permite múltiples valores combinados. Para buscar dentro de un SET no se puede usar = (compara el SET completo); FIND_IN_SET('valor', columna) es la función correcta. NOT FIND_IN_SET verifica ausencia del valor.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">SELECT</span> nombre, cargo, dias_labora
+<span class="k">FROM</span> empleados
+<span class="k">WHERE</span> cargo <span class="k">IN</span> (<span class="s">'Vendedor'</span>, <span class="s">'Vendedora'</span>)
+  <span class="k">AND NOT</span> <span class="f">FIND_IN_SET</span>(<span class="s">'miercoles'</span>, dias_labora);</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 12 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">12</div>
+      <div class="card-title">
+        <h2>INSERT INTO … SELECT — Registrar venta por nombre de empleado</h2>
+        <div class="subtitle">ventas (destino) · empleados (fuente)</div>
+      </div>
+      <span class="tag tag-insert">INSERT SELECT</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Tablas</div>
+          <p>INSERT en ventas; SELECT busca la cédula en empleados por nombre.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Inserta una venta sin necesidad de saber la cédula del empleado de memoria.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>Nueva venta con la cédula de Laura Martínez obtenida automáticamente.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        INSERT INTO … SELECT permite insertar datos derivados de otras tablas. Si el nombre no existe en empleados, el INSERT devuelve 0 filas afectadas (no falla, simplemente no inserta nada) — hay que verificarlo en la aplicación.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">INSERT INTO</span> ventas (cedula_cliente, cedula_empleado, total_venta, metodo_pago, estado)
+    <span class="k">SELECT</span> <span class="s">'3344556677'</span>, cedula, <span class="num-lit">56000</span>, <span class="s">'Efectivo'</span>, <span class="s">'Completada'</span>
+    <span class="k">FROM</span> empleados
+    <span class="k">WHERE</span> nombre <span class="op">=</span> <span class="s">'Laura Martínez Pérez'</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 13 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">13</div>
+      <div class="card-title">
+        <h2>Variable de usuario — Empleado con más ventas (2 pasos)</h2>
+        <div class="subtitle">ventas (paso 1) · empleados (paso 2)</div>
+      </div>
+      <span class="tag tag-var">@variable</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Paso 1</div>
+          <p>Guarda en @top_cedula la cédula del empleado con mayor COUNT de ventas.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Paso 2</div>
+          <p>Usa @top_cedula para recuperar los datos completos del empleado.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado esperado</div>
+          <p>@top_cedula = 43219876 → Laura Martínez Pérez, Vendedora.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        Las variables @nombre persisten durante toda la sesión. Son más legibles que anidar subconsultas complejas. Clave: la variable solo existe mientras dure la conexión con el servidor; no se puede usar entre sesiones distintas.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="c">-- Paso 1: guardar la cédula</span>
+<span class="k">SELECT</span> @top_cedula <span class="op">:=</span> cedula_empleado
+<span class="k">FROM</span> ventas
+<span class="k">GROUP BY</span> cedula_empleado
+<span class="k">ORDER BY</span> <span class="f">COUNT</span>(<span class="op">*</span>) <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="num-lit">1</span>;
+
+<span class="c">-- Paso 2: usar la variable</span>
+<span class="k">SELECT</span> cedula, nombre, cargo, salario
+<span class="k">FROM</span> empleados
+<span class="k">WHERE</span> cedula <span class="op">=</span> @top_cedula;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 14 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">14</div>
+      <div class="card-title">
+        <h2>Encriptación SHA1 — Verificar login de usuario</h2>
+        <div class="subtitle">usuarios_licoreria</div>
+      </div>
+      <span class="tag tag-crypt">SHA1 / MD5</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">SHA1</div>
+          <p>Produce 40 caracteres hex. MD5 produce 32. Ambos son irreversibles.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Hashea la clave ingresada y compara con el hash almacenado. Nunca compara texto plano.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado</div>
+          <p>Clave correcta → 1 fila. Clave incorrecta → Empty set (acceso denegado).</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        Los hashes son IRREVERSIBLES — no se puede recuperar la clave original. El sistema hashea el input del usuario y compara hashes; así aunque alguien acceda a la BD no conoce las contraseñas reales. SHA1 ≠ MD5: producen hashes de distinta longitud y no son compatibles entre sí.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="c">-- Login exitoso</span>
+<span class="k">SELECT</span> usuario, clave
+<span class="k">FROM</span> usuarios_licoreria
+<span class="k">WHERE</span> usuario <span class="op">=</span> <span class="s">'gerente'</span> <span class="k">AND</span> clave <span class="op">=</span> <span class="f">SHA1</span>(<span class="s">'Abc123'</span>);
+
+<span class="c">-- Login fallido (clave incorrecta → Empty set)</span>
+<span class="k">SELECT</span> usuario, clave
+<span class="k">FROM</span> usuarios_licoreria
+<span class="k">WHERE</span> usuario <span class="op">=</span> <span class="s">'gerente'</span> <span class="k">AND</span> clave <span class="op">=</span> <span class="f">SHA1</span>(<span class="s">'XYZ999'</span>);</code></pre>
+      </div>
+      <div class="result">
+        <div class="label">Comparación de algoritmos</div>
+        <code>SHA1('Abc123') → 40 chars hex &nbsp;|&nbsp; MD5('Abc123') → 32 chars hex &nbsp;|&nbsp; PASSWORD('Abc123') → 41 chars</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- 15 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" onclick="toggle(this)">
+      <div class="num">15</div>
+      <div class="card-title">
+        <h2>Trigger descontar_stock — Automatizar inventario</h2>
+        <div class="subtitle">AFTER INSERT ON detalle_ventas → productos</div>
+      </div>
+      <span class="tag tag-trigger">TRIGGER</span>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="analysis">
+        <div class="info-box">
+          <div class="label">Evento</div>
+          <p>AFTER INSERT en detalle_ventas: se dispara tras insertar una línea de venta.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Qué hace</div>
+          <p>Descuenta automáticamente NEW.cantidad del stock_actual del producto vendido.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">Resultado</div>
+          <p>Inventario siempre actualizado sin intervención manual en cada venta.</p>
+        </div>
+      </div>
+      <div class="important">
+        <div class="label">Por qué es importante</div>
+        NEW hace referencia a la fila recién insertada. AFTER INSERT garantiza que el INSERT ya fue confirmado antes de ejecutar el UPDATE al stock. Si el UPDATE del trigger falla, MariaDB puede revertir ambas operaciones manteniendo consistencia entre ventas e inventario.
+      </div>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <span>SQL</span>
+          <button class="copy-btn" onclick="copiar(this)">Copiar</button>
+        </div>
+        <pre><code><span class="k">DELIMITER</span> ;;
+<span class="k">CREATE TRIGGER</span> descontar_stock
+<span class="k">AFTER INSERT ON</span> detalle_ventas
+<span class="k">FOR EACH ROW</span>
+<span class="k">BEGIN</span>
+  <span class="k">UPDATE</span> productos
+  <span class="k">SET</span> stock_actual <span class="op">=</span> stock_actual <span class="op">-</span> NEW.cantidad
+  <span class="k">WHERE</span> id_producto <span class="op">=</span> NEW.id_producto;
+<span class="k">END</span>;;
+<span class="k">DELIMITER</span> ;
+
+<span class="c">-- Verificar que el trigger existe:</span>
+<span class="k">SHOW TRIGGERS LIKE</span> <span class="s">'descontar_stock'</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Sistema de Gestión de Licorería &nbsp;·&nbsp; Bases de Datos II &nbsp;·&nbsp; MariaDB 10.4
+</footer>
+
+<script>
+  function toggle(header) {
+    header.closest('.card').classList.toggle('open');
+  }
+
+  function copiar(btn) {
+    const code = btn.closest('.code-wrap').querySelector('pre').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = 'Copiado';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copiar';
+        btn.classList.remove('copied');
+      }, 1800);
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bases de Datos 2 — Proyecto Final Licorería</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0d2137 0%, #1a3a5c 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      background: #c9a84c;
+      color: #1a3a5c;
+      font-weight: 700;
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    h1 span { color: #e8c76a; }
+    .subtitle { color: rgba(255,255,255,0.7); margin-bottom: 40px; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 28px 22px;
+      text-decoration: none;
+      color: #fff;
+      transition: all .2s;
+      backdrop-filter: blur(8px);
+    }
+    .card:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: #c9a84c;
+      transform: translateY(-4px);
+    }
+    .card .icon { font-size: 3rem; margin-bottom: 12px; }
+    .card h2 { font-size: 1.1rem; color: #e8c76a; margin-bottom: 6px; }
+    .card p { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+    footer {
+      margin-top: 40px;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+    }
+    footer strong { color: #e8c76a; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">Bases de Datos II — Proyecto Final</div>
+    <h1>Sistema de <span>Licorería</span></h1>
+    <p class="subtitle">Documentación interactiva del proyecto</p>
+
+    <div class="cards">
+      <a href="MER_Diccionario_Licoreria.html" class="card">
+        <div class="icon">📊</div>
+        <h2>MER & Diccionario</h2>
+        <p>Modelo Entidad-Relación, diagrama visual, modelo relacional y diccionario de datos completo</p>
+      </a>
+      <a href="consultas_importantes.html" class="card">
+        <div class="icon">🔍</div>
+        <h2>Consultas Importantes</h2>
+        <p>15 consultas representativas con análisis detallado de cada una</p>
+      </a>
+    </div>
+
+    <footer>
+      <strong>Juan Fernando Martinez Aguirre</strong> · CC 100145688<br>
+      Facultad de Ingeniería · MariaDB 10.4
+    </footer>
+  </div>
+</body>
+</html>

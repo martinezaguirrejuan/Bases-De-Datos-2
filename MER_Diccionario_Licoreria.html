@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MER & Diccionario de Datos — Licorería</title>
+  <style>
+    :root {
+      --primary: #1a3a5c;
+      --accent: #c9a84c;
+      --accent2: #e8c76a;
+      --bg: #f5f0e8;
+      --card: #ffffff;
+      --text: #1e2d3d;
+      --muted: #6b7280;
+      --pk: #1a3a5c;
+      --fk: #7c3aed;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── PORTADA ── */
+    .cover {
+      background: linear-gradient(135deg, var(--primary) 0%, #0d2137 60%, #1a3a5c 100%);
+      color: white;
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: "🍾";
+      position: absolute;
+      font-size: 300px;
+      opacity: 0.04;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .cover .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .cover h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+    .cover h1 span { color: var(--accent2); }
+    .cover .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.75;
+      margin-bottom: 36px;
+    }
+    .cover .meta {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+    .cover .meta div { line-height: 1.8; }
+    .cover .meta strong { color: var(--accent2); display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── NAVEGACIÓN ── */
+    nav {
+      background: var(--primary);
+      padding: 0 40px;
+      display: flex;
+      gap: 4px;
+      border-bottom: 3px solid var(--accent);
+      position: sticky; top: 0; z-index: 100;
+    }
+    nav a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      padding: 14px 18px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all .2s;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -3px;
+    }
+    nav a:hover { color: var(--accent2); border-color: var(--accent2); }
+
+    /* ── CONTENIDO ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 50px 30px; }
+    section { margin-bottom: 70px; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e2d9c8;
+    }
+    .section-num {
+      background: var(--accent);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.1rem;
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-header h2 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .section-header p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── MER — ENTIDADES ── */
+    .mer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+    .entity-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .entity-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.13); }
+    .entity-header {
+      padding: 14px 16px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      color: white;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .entity-header .icon { font-size: 1.2rem; }
+    .entity-attrs { list-style: none; padding: 10px 0; }
+    .entity-attrs li {
+      padding: 5px 16px;
+      font-size: 0.82rem;
+      color: var(--text);
+      border-bottom: 1px solid #f0ebe2;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .entity-attrs li:last-child { border-bottom: none; }
+    .tag-pk { background: var(--pk); color: white; font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
+    .tag-fk { background: var(--fk); color: white; font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
+    .tag-enum { background: #065f46; color: white; font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
+    .tag-set  { background: #92400e; color: white; font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
+    .tag-blob { background: #7f1d1d; color: white; font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
+
+    /* colores de encabezado por entidad */
+    .c1 { background: linear-gradient(135deg,#1a3a5c,#2563eb); }
+    .c2 { background: linear-gradient(135deg,#065f46,#059669); }
+    .c3 { background: linear-gradient(135deg,#7c3aed,#a855f7); }
+    .c4 { background: linear-gradient(135deg,#92400e,#d97706); }
+    .c5 { background: linear-gradient(135deg,#9f1239,#e11d48); }
+    .c6 { background: linear-gradient(135deg,#0e7490,#06b6d4); }
+    .c7 { background: linear-gradient(135deg,#3f3f46,#71717a); }
+    .c8 { background: linear-gradient(135deg,#374151,#6b7280); }
+
+    /* ── RELACIONES ── */
+    .rel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .rel-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      border-left: 4px solid var(--accent);
+    }
+    .rel-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .rel-card p { font-size: 0.84rem; color: var(--muted); margin-bottom: 6px; }
+    .rel-card .fk-note {
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      background: #f0ebe2;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--fk);
+    }
+    .cardinality {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    /* ── MODELO RELACIONAL ── */
+    .mr-list { display: flex; flex-direction: column; gap: 14px; }
+    .mr-item {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+    }
+    .mr-item .tname {
+      font-family: 'Segoe UI', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .mr-item .fields { color: #374151; line-height: 1.9; }
+    .mr-item .pk-field { color: var(--pk); font-weight: 700; text-decoration: underline; }
+    .mr-item .fk-field { color: var(--fk); font-style: italic; }
+    .mr-item .special { color: #065f46; }
+    .mr-item .ref { font-size: 0.75rem; color: var(--muted); margin-top: 8px; border-top: 1px dashed #e5e7eb; padding-top: 8px; }
+
+    /* ── DICCIONARIO ── */
+    .dict-section { margin-bottom: 48px; }
+    .dict-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-radius: 10px 10px 0 0;
+      color: white;
+    }
+    .dict-header h3 { font-size: 1.1rem; font-weight: 800; }
+    .dict-header p { font-size: 0.82rem; opacity: 0.85; }
+    .dict-table-wrap {
+      overflow-x: auto;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      font-size: 0.85rem;
+    }
+    thead th {
+      background: #f8f5ef;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 11px 14px;
+      text-align: left;
+      border-bottom: 2px solid #e2d9c8;
+    }
+    tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f0ebe2;
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #faf7f0; }
+    .cell-pk { font-weight: 700; color: var(--pk); }
+    .cell-fk { font-weight: 700; color: var(--fk); }
+    .badge-pk { background: var(--pk); color: white; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .badge-fk { background: var(--fk); color: white; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .badge-enum { background: #065f46; color: white; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .badge-set  { background: #92400e; color: white; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .badge-blob { background: #7f1d1d; color: white; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .type-code { font-family: 'Courier New', monospace; color: #374151; }
+
+    /* ── TRIGGER ── */
+    .trigger-box {
+      background: #0d2137;
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      color: #e2f0ff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .trigger-box h3 { color: var(--accent2); font-size: 1rem; margin-bottom: 14px; }
+    .trigger-box pre {
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+      line-height: 1.7;
+    }
+    .trigger-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .trigger-info div { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 10px 14px; font-size: 0.84rem; }
+    .trigger-info strong { color: var(--accent2); display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+
+    /* ── TABLAS RESUMEN ── */
+    .resumen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .resumen-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      border-top: 4px solid var(--accent);
+    }
+    .resumen-card h4 { font-size: 0.88rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; font-family: 'Courier New', monospace; }
+    .resumen-card ul { list-style: none; font-size: 0.82rem; color: var(--muted); }
+    .resumen-card ul li { padding: 3px 0; border-bottom: 1px dotted #e5e7eb; }
+    .resumen-card ul li:last-child { border-bottom: none; }
+    .gen-tag { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-top: 6px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--primary);
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 24px;
+      font-size: 0.82rem;
+    }
+    footer strong { color: var(--accent2); }
+
+    /* ── LEYENDA ── */
+    .legend {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      background: var(--card);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      font-size: 0.8rem;
+    }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+
+    /* ── DIAGRAMA VISUAL ── */
+    .diagram-container {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin-bottom: 36px;
+      border: 2px solid #e2d9c8;
+    }
+    .diagram-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .diagram-header h3 {
+      font-size: 1.05rem;
+      color: var(--primary);
+      font-weight: 800;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .diagram-header .diagram-tools {
+      display: flex; gap: 8px;
+    }
+    .diagram-tools button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      font-family: inherit;
+    }
+    .diagram-tools button:hover { background: var(--accent); color: var(--primary); }
+    .diagram-frame {
+      background: #f8f5ef;
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      max-height: 600px;
+      cursor: zoom-in;
+      border: 1px solid #e2d9c8;
+    }
+    .diagram-frame img {
+      width: 100%;
+      max-width: 1600px;
+      height: auto;
+      display: block;
+      border-radius: 6px;
+      transition: transform .25s ease;
+    }
+    .diagram-caption {
+      margin-top: 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* ── LIGHTBOX (zoom) ── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 33, 55, 0.95);
+      z-index: 1000;
+      cursor: zoom-out;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+    .lightbox-close {
+      position: fixed;
+      top: 20px; right: 24px;
+      background: var(--accent);
+      color: var(--primary);
+      font-size: 1.4rem;
+      font-weight: 800;
+      border: none;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    /* ── INFO DEL DIAGRAMA ── */
+    .diagram-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .diagram-info-card {
+      background: #f8f5ef;
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+    }
+    .diagram-info-card strong {
+      display: block;
+      color: var(--primary);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 600px) {
+      .cover h1 { font-size: 1.8rem; }
+      nav { overflow-x: auto; }
+      .trigger-info { grid-template-columns: 1fr; }
+      .diagram-frame { max-height: 400px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     PORTADA
+════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="badge">Bases de Datos II — Proyecto Final</div>
+  <h1>Sistema de Gestión de <span>Licorería</span></h1>
+  <p class="subtitle">Modelo Entidad–Relación · Modelo Relacional · Diccionario de Datos</p>
+  <div class="meta">
+    <div><strong>Autor</strong>Juan Fernando Martinez Aguirre</div>
+    <div><strong>Cédula</strong>1001456888</div>
+    <div><strong>Facultad</strong>Ingeniería</div>
+    <div><strong>Motor</strong>MariaDB / MySQL</div>
+    <div><strong>Total tablas</strong>14 (8 principales + 6 resumen)</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     NAVEGACIÓN
+════════════════════════════════════════════ -->
+<nav>
+  <a href="#diagrama">Diagrama</a>
+  <a href="#mer">MER</a>
+  <a href="#relaciones">Relaciones</a>
+  <a href="#mr">Modelo Relacional</a>
+  <a href="#diccionario">Diccionario</a>
+  <a href="#trigger">Trigger</a>
+  <a href="#resumen">Tablas Resumen</a>
+  <a href="#encriptacion">Encriptación</a>
+  <a href="#usuarios">Usuarios</a>
+</nav>
+
+<div class="container">
+
+<!-- ════════════════════════════════════════════
+     SECCIÓN 0 — DIAGRAMA VISUAL DEL MER
+════════════════════════════════════════════ -->
+<section id="diagrama">
+  <div class="section-header">
+    <div class="section-num">0</div>
+    <div>
+      <h2>Diagrama Visual del MER</h2>
+      <p>Representación gráfica completa con todas las entidades, relaciones y cardinalidades</p>
+    </div>
+  </div>
+
+  <div class="diagram-container">
+    <div class="diagram-header">
+      <h3>🗺️ Modelo Entidad–Relación completo</h3>
+      <div class="diagram-tools">
+        <button onclick="abrirLightbox()">🔍 Ampliar</button>
+        <button onclick="descargarDiagrama()">⬇ Descargar</button>
+      </div>
+    </div>
+
+    <div class="diagram-frame" onclick="abrirLightbox()">
+      <img src="diagrama_mer.png" alt="Diagrama MER Licorería" id="mer-img">
+    </div>
+
+    <p class="diagram-caption">Haz clic en la imagen para ampliarla · 15 tablas · 14 relaciones</p>
+
+    <div class="diagram-info">
+      <div class="diagram-info-card">
+        <strong>Tablas principales</strong>
+        clientes, empleados, proveedores, productos, ventas, compras, detalle_ventas, detalle_compras
+      </div>
+      <div class="diagram-info-card">
+        <strong>Tabla de acceso</strong>
+        usuarios_licoreria (login con SHA1/MD5)
+      </div>
+      <div class="diagram-info-card">
+        <strong>Tablas de resumen</strong>
+        6 tablas analíticas generadas con CREATE TABLE ... SELECT
+      </div>
+      <div class="diagram-info-card">
+        <strong>Integridad referencial</strong>
+        Todas las FK con ON DELETE CASCADE y ON UPDATE CASCADE
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
+    <button class="lightbox-close" onclick="cerrarLightbox(event)">✕</button>
+    <img src="diagrama_mer.png" alt="Diagrama MER ampliado">
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECCIÓN 1 — MER
+════════════════════════════════════════════ -->
+<section id="mer">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div>
+      <h2>Modelo Entidad–Relación (MER)</h2>
+      <p>Entidades principales del sistema con sus atributos y tipos de datos especiales</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="badge-pk">PK</span> Clave Primaria</span>
+    <span><span class="badge-fk">FK</span> Clave Foránea</span>
+    <span><span class="badge-enum">ENUM</span> Tipo enumerado</span>
+    <span><span class="badge-set">SET</span> Tipo conjunto</span>
+    <span><span class="badge-blob">BLOB</span> Datos binarios</span>
+  </div>
+
+  <div class="mer-grid">
+
+    <!-- CLIENTE -->
+    <div class="entity-card">
+      <div class="entity-header c1"><span class="icon">👤</span> CLIENTES</div>
+      <ul class="entity-attrs">
+        <li><span class="tag-pk">PK</span> cedula</li>
+        <li>nombre</li>
+        <li>telefono</li>
+        <li>email</li>
+        <li>direccion</li>
+        <li>fecha_registro</li>
+      </ul>
+    </div>
+
+    <!-- EMPLEADOS -->
+    <div class="entity-card">
+      <div class="entity-header c2"><span class="icon">🧑‍💼</span> EMPLEADOS</div>
+      <ul class="entity-attrs">
+        <li><span class="tag-pk">PK</span> cedula</li>
+        <li>nombre</li>
+        <li><span class="tag-enum">ENUM</span> cargo</li>
+        <li><span class="tag-set">SET</span> dias_labora</li>
+        <li>telefono · email</li>
+        <li>fecha_contratacion</li>
+        <li>salario</li>
+        <li><span class="tag-blob">BLOB</span> observacion</li>
+      </ul>
+    </div>
+
+    <!-- PRODUCTOS -->
+    <div class="entity-card">
+      <div class="entity-header c3"><span class="icon">🍾</span> PRODUCTOS</div>
+      <ul class="entity-attrs">
+        <li><span class="tag-pk">PK</span> id_producto</li>
+        <li>nombre · marca</li>
+        <li><span class="tag-enum">ENUM</span> tipo_licor</li>
+        <li><span class="tag-enum">ENUM</span> categoria</li>
+        <li>contenido_ml</li>
+        <li>precio_compra</li>
+        <li>precio_venta</li>
+        <li>stock_actual</li>
+        <li>stock_minimo</li>
+      </ul>
+    </div>
+
+    <!-- PROVEEDORES -->
+    <div class="entity-card">
+      <div class="entity-header c4"><span class="icon">🏭</span> PROVEEDORES</div>
+      <ul class="entity-attrs">
+        <li><span class="tag-pk">PK</span> nit</li>
+        <li>nombre_empresa</li>
+        <li>direccion</li>
+        <li>telefono · email</li>
+        <li>persona_contacto</li>
+      </ul>
+    </div>
+
+    <!-- VENTAS -->
+    <div class="entity-card">
+      <div class="entity-header c5"><span class="icon">🛒</span> VENTAS</div>
+      <ul class="entity-attrs">
+        <li><span class="tag-pk">PK</span> id_venta</li>
+        <li><span class="tag-fk">FK</span> cedula_cliente</li>
+        <li><span class="tag-fk">FK</span> cedula_empleado</li>
+        <li>fecha_venta</li>
+        <li>total_venta</li>
+        <li><span class="tag-enum">ENUM</span> metodo_pago</li>
+        <li><span class="tag-enum">ENUM</span> estado</li>
+      </ul>
+    </div>
+
+    <!-- COMPRAS -->
+    <div class="entity-card">
+      <div class="entity-header c6"><span class="icon">📦</span> COMPRAS</div>
+      <ul class="entity-attrs">
+        <li><span class="tag-pk">PK</span> id_compra</li>
+        <li><span class="tag-fk">FK</span> nit_proveedor</li>
+        <li>fecha_compra</li>
+        <li>total_compra</li>
+        <li><span class="tag-enum">ENUM</span> estado</li>
+      </ul>
+    </div>
+
+    <!-- DETALLE VENTAS -->
+    <div class="entity-card">
+      <div class="entity-header c7"><span class="icon">📋</span> DETALLE_VENTAS</div>
+      <ul class="entity-attrs">
+        <li><span class="tag-pk">PK</span> id_detalle_venta</li>
+        <li><span class="tag-fk">FK</span> id_venta</li>
+        <li><span class="tag-fk">FK</span> id_producto</li>
+        <li>cantidad</li>
+        <li>precio_unitario</li>
+        <li>descuento</li>
+        <li>subtotal</li>
+      </ul>
+    </div>
+
+    <!-- DETALLE COMPRAS -->
+    <div class="entity-card">
+      <div class="entity-header c8"><span class="icon">📝</span> DETALLE_COMPRAS</div>
+      <ul class="entity-attrs">
+        <li><span class="tag-pk">PK</span> id_detalle_compra</li>
+        <li><span class="tag-fk">FK</span> id_compra</li>
+        <li><span class="tag-fk">FK</span> id_producto</li>
+        <li>cantidad</li>
+        <li>precio_unitario</li>
+        <li>subtotal</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECCIÓN 2 — RELACIONES
+════════════════════════════════════════════ -->
+<section id="relaciones">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div>
+      <h2>Relaciones entre Entidades</h2>
+      <p>Cardinalidades, llaves foráneas y comportamiento referencial</p>
+    </div>
+  </div>
+
+  <div class="rel-grid">
+
+    <div class="rel-card">
+      <div class="rel-title">👤 CLIENTES → 🛒 VENTAS <span class="cardinality">1 : N</span></div>
+      <p><strong>Realiza</strong> — Un cliente puede tener muchas ventas. Una venta pertenece a un solo cliente (o es anónima).</p>
+      <div class="fk-note">ventas.cedula_cliente → clientes.cedula<br>ON DELETE CASCADE</div>
+    </div>
+
+    <div class="rel-card">
+      <div class="rel-title">🧑‍💼 EMPLEADOS → 🛒 VENTAS <span class="cardinality">1 : N</span></div>
+      <p><strong>Atiende</strong> — Un empleado puede atender muchas ventas. Cada venta es atendida por un solo empleado.</p>
+      <div class="fk-note">ventas.cedula_empleado → empleados.cedula<br>ON DELETE CASCADE</div>
+    </div>
+
+    <div class="rel-card">
+      <div class="rel-title">🛒 VENTAS ↔ 🍾 PRODUCTOS <span class="cardinality">N : M</span></div>
+      <p><strong>Contiene / es vendido en</strong> — Resuelta con la tabla intermedia <strong>detalle_ventas</strong>.</p>
+      <div class="fk-note">detalle_ventas.id_venta → ventas.id_venta<br>detalle_ventas.id_producto → productos.id_producto</div>
+    </div>
+
+    <div class="rel-card">
+      <div class="rel-title">🏭 PROVEEDORES → 📦 COMPRAS <span class="cardinality">1 : N</span></div>
+      <p><strong>Suministra en</strong> — Un proveedor puede tener muchas compras. Cada compra pertenece a un solo proveedor.</p>
+      <div class="fk-note">compras.nit_proveedor → proveedores.nit<br>ON DELETE CASCADE</div>
+    </div>
+
+    <div class="rel-card">
+      <div class="rel-title">📦 COMPRAS ↔ 🍾 PRODUCTOS <span class="cardinality">N : M</span></div>
+      <p><strong>Contiene / es comprado en</strong> — Resuelta con la tabla intermedia <strong>detalle_compras</strong>.</p>
+      <div class="fk-note">detalle_compras.id_compra → compras.id_compra<br>detalle_compras.id_producto → productos.id_producto</div>
+    </div>
+
+    <div class="rel-card" style="border-left-color:#e11d48;">
+      <div class="rel-title" style="color:#9f1239;">⚡ Trigger automático</div>
+      <p>Tras cada INSERT en <strong>detalle_ventas</strong>, el trigger <em>descontar_stock</em> descuenta automáticamente el inventario de PRODUCTOS.</p>
+      <div class="fk-note" style="color:#9f1239;">AFTER INSERT ON detalle_ventas</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECCIÓN 3 — MODELO RELACIONAL (3FN)
+════════════════════════════════════════════ -->
+<section id="mr">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div>
+      <h2>Modelo Relacional Normalizado (3FN)</h2>
+      <p>Representación formal con PK subrayada y FK en cursiva — Tercera Forma Normal</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span style="text-decoration:underline;font-weight:700;color:var(--pk);font-family:monospace">campo</span> Clave Primaria</span>
+    <span><span style="font-style:italic;color:var(--fk);font-family:monospace">campo</span> Clave Foránea</span>
+    <span><span style="color:#065f46;font-family:monospace">{campo}</span> ENUM / SET</span>
+  </div>
+
+  <div class="mr-list">
+
+    <div class="mr-item">
+      <div class="tname">🏷 CLIENTES</div>
+      <div class="fields">
+        <span class="pk-field">cedula</span>, nombre, telefono, email, direccion, fecha_registro
+      </div>
+    </div>
+
+    <div class="mr-item">
+      <div class="tname">🧑‍💼 EMPLEADOS</div>
+      <div class="fields">
+        <span class="pk-field">cedula</span>, nombre, <span class="special">{cargo}</span>, <span class="special">{dias_labora}</span>, telefono, email, fecha_contratacion, salario, observacion
+      </div>
+    </div>
+
+    <div class="mr-item">
+      <div class="tname">🍾 PRODUCTOS</div>
+      <div class="fields">
+        <span class="pk-field">id_producto</span>, nombre, <span class="special">{tipo_licor}</span>, marca, <span class="special">{categoria}</span>, contenido_ml, precio_compra, precio_venta, stock_actual, stock_minimo
+      </div>
+    </div>
+
+    <div class="mr-item">
+      <div class="tname">🏭 PROVEEDORES</div>
+      <div class="fields">
+        <span class="pk-field">nit</span>, nombre_empresa, direccion, telefono, email, persona_contacto
+      </div>
+    </div>
+
+    <div class="mr-item">
+      <div class="tname">🛒 VENTAS</div>
+      <div class="fields">
+        <span class="pk-field">id_venta</span>, <span class="fk-field">cedula_cliente</span>, <span class="fk-field">cedula_empleado</span>, fecha_venta, total_venta, <span class="special">{metodo_pago}</span>, <span class="special">{estado}</span>
+      </div>
+      <div class="ref">
+        cedula_cliente → CLIENTES(cedula) · cedula_empleado → EMPLEADOS(cedula)
+      </div>
+    </div>
+
+    <div class="mr-item">
+      <div class="tname">📦 COMPRAS</div>
+      <div class="fields">
+        <span class="pk-field">id_compra</span>, <span class="fk-field">nit_proveedor</span>, fecha_compra, total_compra, <span class="special">{estado}</span>
+      </div>
+      <div class="ref">nit_proveedor → PROVEEDORES(nit)</div>
+    </div>
+
+    <div class="mr-item">
+      <div class="tname">📋 DETALLE_VENTAS</div>
+      <div class="fields">
+        <span class="pk-field">id_detalle_venta</span>, <span class="fk-field">id_venta</span>, <span class="fk-field">id_producto</span>, cantidad, precio_unitario, descuento, subtotal
+      </div>
+      <div class="ref">
+        id_venta → VENTAS(id_venta) · id_producto → PRODUCTOS(id_producto)
+      </div>
+    </div>
+
+    <div class="mr-item">
+      <div class="tname">📝 DETALLE_COMPRAS</div>
+      <div class="fields">
+        <span class="pk-field">id_detalle_compra</span>, <span class="fk-field">id_compra</span>, <span class="fk-field">id_producto</span>, cantidad, precio_unitario, subtotal
+      </div>
+      <div class="ref">
+        id_compra → COMPRAS(id_compra) · id_producto → PRODUCTOS(id_producto)
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECCIÓN 4 — DICCIONARIO DE DATOS
+════════════════════════════════════════════ -->
+<section id="diccionario">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div>
+      <h2>Diccionario de Datos</h2>
+      <p>Base de datos: <strong>licoreria</strong> · Motor: MariaDB 10.4 · Charset: utf8mb4 · 14 tablas</p>
+    </div>
+  </div>
+
+  <!-- ── CLIENTES ── -->
+  <div class="dict-section">
+    <div class="dict-header c1">
+      <div><h3>👤 Tabla: clientes</h3><p>Almacena los datos de los clientes frecuentes de la licorería.</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-pk">cedula</td><td class="type-code">VARCHAR(20)</td><td>NO</td><td><span class="badge-pk">PK</span></td><td>Número de cédula del cliente (identificador único)</td></tr>
+          <tr><td>nombre</td><td class="type-code">VARCHAR(100)</td><td>NO</td><td>—</td><td>Nombre completo del cliente</td></tr>
+          <tr><td>telefono</td><td class="type-code">VARCHAR(20)</td><td>SÍ</td><td>—</td><td>Número de teléfono de contacto</td></tr>
+          <tr><td>email</td><td class="type-code">VARCHAR(100)</td><td>SÍ</td><td>—</td><td>Correo electrónico del cliente</td></tr>
+          <tr><td>direccion</td><td class="type-code">VARCHAR(150)</td><td>SÍ</td><td>—</td><td>Dirección de residencia</td></tr>
+          <tr><td>fecha_registro</td><td class="type-code">DATE</td><td>SÍ</td><td>—</td><td>Fecha de registro. Default: fecha actual</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── EMPLEADOS ── -->
+  <div class="dict-section">
+    <div class="dict-header c2">
+      <div><h3>🧑‍💼 Tabla: empleados</h3><p>Registra el personal que labora en la licorería.</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-pk">cedula</td><td class="type-code">VARCHAR(20)</td><td>NO</td><td><span class="badge-pk">PK</span></td><td>Número de cédula del empleado</td></tr>
+          <tr><td>nombre</td><td class="type-code">VARCHAR(100)</td><td>NO</td><td>—</td><td>Nombre completo del empleado</td></tr>
+          <tr><td>cargo</td><td class="type-code">ENUM</td><td>NO</td><td><span class="badge-enum">ENUM</span></td><td>Cargo: Gerente, Supervisor, Vendedor/a, Cajero/a, Bodeguero, Aux. Contable</td></tr>
+          <tr><td>dias_labora</td><td class="type-code">SET</td><td>NO</td><td><span class="badge-set">SET</span></td><td>Días de trabajo: lunes a sábado (múltiples valores)</td></tr>
+          <tr><td>telefono</td><td class="type-code">VARCHAR(15)</td><td>SÍ</td><td>—</td><td>Teléfono de contacto</td></tr>
+          <tr><td>email</td><td class="type-code">VARCHAR(100)</td><td>SÍ</td><td>—</td><td>Correo electrónico corporativo</td></tr>
+          <tr><td>fecha_contratacion</td><td class="type-code">DATE</td><td>NO</td><td>—</td><td>Fecha en que fue contratado</td></tr>
+          <tr><td>salario</td><td class="type-code">DECIMAL(10,2)</td><td>SÍ</td><td>—</td><td>Salario mensual en pesos colombianos</td></tr>
+          <tr><td>observacion</td><td class="type-code">BLOB</td><td>SÍ</td><td><span class="badge-blob">BLOB</span></td><td>Observaciones en formato binario (texto extenso)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PRODUCTOS ── -->
+  <div class="dict-section">
+    <div class="dict-header c3">
+      <div><h3>🍾 Tabla: productos</h3><p>Catálogo de productos alcohólicos disponibles en la licorería.</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-pk">id_producto</td><td class="type-code">INT(11) AI</td><td>NO</td><td><span class="badge-pk">PK</span></td><td>Identificador único del producto (auto-incremental)</td></tr>
+          <tr><td>nombre</td><td class="type-code">VARCHAR(100)</td><td>NO</td><td>—</td><td>Nombre comercial del producto</td></tr>
+          <tr><td>tipo_licor</td><td class="type-code">ENUM</td><td>NO</td><td><span class="badge-enum">ENUM</span></td><td>Categoría: Whisky, Ron, Vodka, Cerveza, Vino, Aguardiente, Tequila, Ginebra, Brandy, Otro</td></tr>
+          <tr><td>marca</td><td class="type-code">VARCHAR(50)</td><td>SÍ</td><td>—</td><td>Marca del producto</td></tr>
+          <tr><td>categoria</td><td class="type-code">ENUM</td><td>SÍ</td><td><span class="badge-enum">ENUM</span></td><td>Origen: Importado, Nacional, Artesanal. Default: Nacional</td></tr>
+          <tr><td>contenido_ml</td><td class="type-code">INT(11)</td><td>SÍ</td><td>—</td><td>Contenido del envase en mililitros</td></tr>
+          <tr><td>precio_compra</td><td class="type-code">DECIMAL(10,2)</td><td>NO</td><td>—</td><td>Precio al que se compra al proveedor</td></tr>
+          <tr><td>precio_venta</td><td class="type-code">DECIMAL(10,2)</td><td>NO</td><td>—</td><td>Precio al que se vende al cliente</td></tr>
+          <tr><td>stock_actual</td><td class="type-code">INT(11)</td><td>SÍ</td><td>—</td><td>Cantidad disponible en inventario. Default: 0</td></tr>
+          <tr><td>stock_minimo</td><td class="type-code">INT(11)</td><td>SÍ</td><td>—</td><td>Cantidad mínima antes de alerta de reabastecimiento. Default: 5</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PROVEEDORES ── -->
+  <div class="dict-section">
+    <div class="dict-header c4">
+      <div><h3>🏭 Tabla: proveedores</h3><p>Empresas y distribuidores que suministran productos a la licorería.</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-pk">nit</td><td class="type-code">VARCHAR(20)</td><td>NO</td><td><span class="badge-pk">PK</span></td><td>NIT de la empresa proveedora</td></tr>
+          <tr><td>nombre_empresa</td><td class="type-code">VARCHAR(100)</td><td>NO</td><td>—</td><td>Razón social del proveedor</td></tr>
+          <tr><td>direccion</td><td class="type-code">VARCHAR(150)</td><td>SÍ</td><td>—</td><td>Dirección de la empresa</td></tr>
+          <tr><td>telefono</td><td class="type-code">VARCHAR(15)</td><td>SÍ</td><td>—</td><td>Teléfono de contacto</td></tr>
+          <tr><td>email</td><td class="type-code">VARCHAR(100)</td><td>SÍ</td><td>—</td><td>Correo electrónico de contacto</td></tr>
+          <tr><td>persona_contacto</td><td class="type-code">VARCHAR(100)</td><td>SÍ</td><td>—</td><td>Nombre del representante comercial</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── VENTAS ── -->
+  <div class="dict-section">
+    <div class="dict-header c5">
+      <div><h3>🛒 Tabla: ventas</h3><p>Registra cada transacción de venta realizada en la licorería.</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-pk">id_venta</td><td class="type-code">INT(11) AI</td><td>NO</td><td><span class="badge-pk">PK</span></td><td>Identificador único de la venta</td></tr>
+          <tr><td class="cell-fk">cedula_cliente</td><td class="type-code">VARCHAR(20)</td><td>SÍ</td><td><span class="badge-fk">FK</span></td><td>Cédula del cliente → clientes.cedula (NULL si venta anónima)</td></tr>
+          <tr><td class="cell-fk">cedula_empleado</td><td class="type-code">VARCHAR(20)</td><td>NO</td><td><span class="badge-fk">FK</span></td><td>Cédula del empleado que realizó la venta → empleados.cedula</td></tr>
+          <tr><td>fecha_venta</td><td class="type-code">DATETIME</td><td>SÍ</td><td>—</td><td>Fecha y hora de la venta. Default: timestamp actual</td></tr>
+          <tr><td>total_venta</td><td class="type-code">DECIMAL(10,2)</td><td>NO</td><td>—</td><td>Valor total de la venta en pesos colombianos</td></tr>
+          <tr><td>metodo_pago</td><td class="type-code">ENUM</td><td>NO</td><td><span class="badge-enum">ENUM</span></td><td>Forma de pago: Efectivo, Tarjeta, Transferencia, Nequi, Daviplata</td></tr>
+          <tr><td>estado</td><td class="type-code">ENUM</td><td>SÍ</td><td><span class="badge-enum">ENUM</span></td><td>Estado: Completada, Pendiente, Cancelada. Default: Completada</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── COMPRAS ── -->
+  <div class="dict-section">
+    <div class="dict-header c6">
+      <div><h3>📦 Tabla: compras</h3><p>Registra las órdenes de compra realizadas a los proveedores.</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-pk">id_compra</td><td class="type-code">INT(11) AI</td><td>NO</td><td><span class="badge-pk">PK</span></td><td>Identificador único de la compra</td></tr>
+          <tr><td class="cell-fk">nit_proveedor</td><td class="type-code">VARCHAR(20)</td><td>NO</td><td><span class="badge-fk">FK</span></td><td>NIT del proveedor → proveedores.nit</td></tr>
+          <tr><td>fecha_compra</td><td class="type-code">DATE</td><td>NO</td><td>—</td><td>Fecha en que se realizó la compra</td></tr>
+          <tr><td>total_compra</td><td class="type-code">DECIMAL(10,2)</td><td>NO</td><td>—</td><td>Valor total de la orden de compra</td></tr>
+          <tr><td>estado</td><td class="type-code">ENUM</td><td>SÍ</td><td><span class="badge-enum">ENUM</span></td><td>Estado: Completada, Pendiente, Cancelada. Default: Completada</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── DETALLE_VENTAS ── -->
+  <div class="dict-section">
+    <div class="dict-header c7">
+      <div><h3>📋 Tabla: detalle_ventas</h3><p>Líneas de producto de cada venta — tabla intermedia (N:M entre ventas y productos).</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-pk">id_detalle_venta</td><td class="type-code">INT(11) AI</td><td>NO</td><td><span class="badge-pk">PK</span></td><td>Identificador único del detalle</td></tr>
+          <tr><td class="cell-fk">id_venta</td><td class="type-code">INT(11)</td><td>NO</td><td><span class="badge-fk">FK</span></td><td>Venta a la que pertenece → ventas.id_venta</td></tr>
+          <tr><td class="cell-fk">id_producto</td><td class="type-code">INT(11)</td><td>NO</td><td><span class="badge-fk">FK</span></td><td>Producto vendido → productos.id_producto</td></tr>
+          <tr><td>cantidad</td><td class="type-code">INT(11)</td><td>NO</td><td>—</td><td>Unidades vendidas del producto</td></tr>
+          <tr><td>precio_unitario</td><td class="type-code">DECIMAL(10,2)</td><td>NO</td><td>—</td><td>Precio del producto al momento de la venta</td></tr>
+          <tr><td>descuento</td><td class="type-code">DECIMAL(5,2)</td><td>SÍ</td><td>—</td><td>Descuento aplicado por unidad. Default: 0.00</td></tr>
+          <tr><td>subtotal</td><td class="type-code">DECIMAL(10,2)</td><td>NO</td><td>—</td><td>Total línea: cantidad × precio_unitario − descuento</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── DETALLE_COMPRAS ── -->
+  <div class="dict-section">
+    <div class="dict-header c8">
+      <div><h3>📝 Tabla: detalle_compras</h3><p>Líneas de producto de cada compra — tabla intermedia (N:M entre compras y productos).</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-pk">id_detalle_compra</td><td class="type-code">INT(11) AI</td><td>NO</td><td><span class="badge-pk">PK</span></td><td>Identificador único del detalle de compra</td></tr>
+          <tr><td class="cell-fk">id_compra</td><td class="type-code">INT(11)</td><td>NO</td><td><span class="badge-fk">FK</span></td><td>Compra a la que pertenece → compras.id_compra</td></tr>
+          <tr><td class="cell-fk">id_producto</td><td class="type-code">INT(11)</td><td>NO</td><td><span class="badge-fk">FK</span></td><td>Producto adquirido → productos.id_producto</td></tr>
+          <tr><td>cantidad</td><td class="type-code">INT(11)</td><td>NO</td><td>—</td><td>Unidades compradas</td></tr>
+          <tr><td>precio_unitario</td><td class="type-code">DECIMAL(10,2)</td><td>NO</td><td>—</td><td>Precio de compra por unidad</td></tr>
+          <tr><td>subtotal</td><td class="type-code">DECIMAL(10,2)</td><td>NO</td><td>—</td><td>Total línea: cantidad × precio_unitario</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECCIÓN 5 — TRIGGER
+════════════════════════════════════════════ -->
+<section id="trigger">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div>
+      <h2>Trigger: descontar_stock</h2>
+      <p>Automatización del inventario tras cada venta registrada</p>
+    </div>
+  </div>
+
+  <div class="trigger-box">
+    <div class="trigger-info">
+      <div><strong>Nombre</strong>descontar_stock</div>
+      <div><strong>Evento</strong>AFTER INSERT</div>
+      <div><strong>Tabla</strong>detalle_ventas</div>
+      <div><strong>Propósito</strong>Consistencia automática de inventario</div>
+    </div>
+    <h3>Código SQL</h3>
+    <pre>
+CREATE TRIGGER descontar_stock
+AFTER INSERT ON detalle_ventas
+FOR EACH ROW
+BEGIN
+    UPDATE productos
+    SET stock_actual = stock_actual - NEW.cantidad
+    WHERE id_producto = NEW.id_producto;
+END;</pre>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECCIÓN 6 — TABLAS RESUMEN
+════════════════════════════════════════════ -->
+<section id="resumen">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div>
+      <h2>Tablas de Resumen Analítico</h2>
+      <p>Generadas dinámicamente con <code>CREATE TABLE ... SELECT</code></p>
+    </div>
+  </div>
+
+  <div class="resumen-grid">
+
+    <div class="resumen-card">
+      <h4>resumen_por_tipo</h4>
+      <ul>
+        <li>tipo_licor</li>
+        <li>cantidad_productos</li>
+        <li>precio_promedio_venta</li>
+        <li>stock_total</li>
+      </ul>
+      <span class="gen-tag">Productos por categoría de licor</span>
+    </div>
+
+    <div class="resumen-card">
+      <h4>ventas_por_metodo</h4>
+      <ul>
+        <li>metodo_pago</li>
+        <li>cantidad_ventas</li>
+        <li>total_recaudado</li>
+        <li>promedio_venta</li>
+      </ul>
+      <span class="gen-tag">Recaudo por método de pago</span>
+    </div>
+
+    <div class="resumen-card">
+      <h4>productos_stock_bajo</h4>
+      <ul>
+        <li>id_producto · nombre</li>
+        <li>tipo_licor · categoria</li>
+        <li>stock_actual</li>
+        <li>stock_minimo</li>
+      </ul>
+      <span class="gen-tag">Alerta de reabastecimiento</span>
+    </div>
+
+    <div class="resumen-card">
+      <h4>ranking_empleados</h4>
+      <ul>
+        <li>cedula · nombre</li>
+        <li>cargo</li>
+        <li>total_ventas</li>
+        <li>monto_total</li>
+      </ul>
+      <span class="gen-tag">Desempeño por empleado</span>
+    </div>
+
+    <div class="resumen-card">
+      <h4>productos_mas_vendidos</h4>
+      <ul>
+        <li>id_producto · nombre</li>
+        <li>tipo_licor</li>
+        <li>unidades_vendidas</li>
+        <li>ingresos_generados</li>
+      </ul>
+      <span class="gen-tag">Ranking de ventas por producto</span>
+    </div>
+
+    <div class="resumen-card">
+      <h4>resumen_proveedores</h4>
+      <ul>
+        <li>nit · nombre_empresa</li>
+        <li>total_compras</li>
+        <li>monto_total</li>
+        <li>promedio_compra</li>
+      </ul>
+      <span class="gen-tag">Análisis de gasto por proveedor</span>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SECCIÓN 7 — ENCRIPTACIÓN
+════════════════════════════════════════════ -->
+<section id="encriptacion">
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <div>
+      <h2>Encriptación — SHA1, MD5 y PASSWORD</h2>
+      <p>Protección de contraseñas mediante funciones de hashing irreversible en MariaDB</p>
+    </div>
+  </div>
+
+  <!-- Tabla comparativa -->
+  <div class="dict-section">
+    <div class="dict-header c2">
+      <div><h3>🔐 Funciones de encriptación en MariaDB</h3><p>Comparativa de los tres algoritmos de hash usados para proteger contraseñas</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead>
+          <tr><th>Función</th><th>Algoritmo</th><th>Longitud resultado</th><th>Reversible</th><th>Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SHA1(str)</code></td>
+            <td>SHA-1 (160 bits)</td>
+            <td>40 chars hex</td>
+            <td>No</td>
+            <td>Secure Hash Algorithm 1. Produce un resumen del mensaje de 40 dígitos hexadecimales.</td>
+          </tr>
+          <tr>
+            <td><code>MD5(str)</code></td>
+            <td>MD5 (128 bits)</td>
+            <td>32 chars hex</td>
+            <td>No</td>
+            <td>Message-Digest Algorithm 5. Hash de 32 caracteres hex. Ampliamente usado.</td>
+          </tr>
+          <tr>
+            <td><code>PASSWORD(str)</code></td>
+            <td>Hash interno MariaDB</td>
+            <td>41 chars (*XXX…)</td>
+            <td>No</td>
+            <td>Función usada por MariaDB para cifrar contraseñas de sus usuarios del sistema (tabla mysql.user).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabla estructura usuarios_licoreria -->
+  <div class="dict-section">
+    <div class="dict-header c5">
+      <div><h3>🍾 Tabla: usuarios_licoreria</h3><p>Gestiona el acceso al sistema. Las claves se almacenan como hash — nunca como texto plano.</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-pk">id</td><td class="type-code">VARCHAR(5)</td><td>NO</td><td><span class="badge-pk">PK</span></td><td>Identificador único del usuario del sistema</td></tr>
+          <tr><td>usuario</td><td class="type-code">VARCHAR(20)</td><td>NO</td><td>—</td><td>Nombre de usuario para iniciar sesión</td></tr>
+          <tr><td>clave</td><td class="type-code">VARCHAR(41)</td><td>NO</td><td>—</td><td>Hash de la contraseña. VARCHAR(41) cubre los 3 algoritmos: SHA1=40, MD5=32, PASSWORD=41</td></tr>
+          <tr><td>estado</td><td class="type-code">VARCHAR(5)</td><td>NO</td><td>—</td><td>Estado de la cuenta: A (Activo) / I (Inactivo)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Código SQL paso a paso -->
+  <div style="margin-bottom:32px;">
+    <div class="trigger-box">
+      <h3>Paso 1 — Ver cómo lucen los hashes</h3>
+      <pre>
+SELECT SHA1('Abc123')     AS hash_sha1;
+-- Resultado: bec75d2e4e2acf4f4ab038144c0d862505e52d07  (40 chars)
+
+SELECT MD5('Abc123')      AS hash_md5;
+-- Resultado: 61bd60c60d9fb60cc8fc7767669d40a1          (32 chars)
+
+SELECT PASSWORD('Abc123') AS hash_password;
+-- Resultado: *7A8BBCB18A250055A6BB98ECFA33A8174D21950  (41 chars)</pre>
+
+      <h3 style="margin-top:20px;">Paso 2 — Crear la tabla de usuarios</h3>
+      <pre>
+CREATE TABLE usuarios_licoreria (
+  id      VARCHAR(5)  NOT NULL,
+  usuario VARCHAR(20) NOT NULL,
+  clave   VARCHAR(41) NOT NULL,   -- 41 chars cubre los 3 algoritmos
+  estado  VARCHAR(5)  NOT NULL,
+  PRIMARY KEY (id)
+);</pre>
+
+      <h3 style="margin-top:20px;">Paso 3 — Insertar con contraseñas cifradas al momento del INSERT</h3>
+      <pre>
+INSERT INTO usuarios_licoreria VALUES ('00001', 'gerente',  SHA1('Abc123'),     'A');
+INSERT INTO usuarios_licoreria VALUES ('00002', 'vendedor', MD5('Abc123'),      'A');
+INSERT INTO usuarios_licoreria VALUES ('00003', 'cajero',   PASSWORD('Abc123'), 'A');
+
+SELECT * FROM usuarios_licoreria;
+-- +-------+----------+------------------------------------------+--------+
+-- | 00001 | gerente  | bec75d2e4e2acf4f4ab038144c0d862505e52d07 | A      |
+-- | 00002 | vendedor | 61bd60c60d9fb60cc8fc7767669d40a1         | A      |
+-- | 00003 | cajero   | *7A8BBCB18A250055A6BB98ECFA33A8174D21950 | A      |
+-- +-------+----------+------------------------------------------+--------+</pre>
+
+      <h3 style="margin-top:20px;">Paso 4 — Verificar login (simular autenticación)</h3>
+      <pre>
+-- Se hashea la clave ingresada y se compara con la almacenada
+
+-- Login correcto con SHA1
+SELECT usuario, clave FROM usuarios_licoreria
+WHERE usuario = 'gerente' AND clave = SHA1('Abc123');
+-- Resultado: devuelve el registro ✔
+
+-- Login correcto con MD5
+SELECT usuario, clave FROM usuarios_licoreria
+WHERE usuario = 'vendedor' AND clave = MD5('Abc123');
+-- Resultado: devuelve el registro ✔
+
+-- Clave INCORRECTA — Empty set (acceso denegado)
+SELECT usuario, clave FROM usuarios_licoreria
+WHERE usuario = 'gerente' AND clave = SHA1('XYZ999');
+-- Resultado: Empty set ✘</pre>
+
+      <h3 style="margin-top:20px;">Paso 5 — Comparar los tres algoritmos</h3>
+      <pre>
+SELECT 'SHA1'     AS algoritmo, SHA1('Abc123'),     LENGTH(SHA1('Abc123'))     AS chars
+UNION ALL
+SELECT 'MD5',                   MD5('Abc123'),      LENGTH(MD5('Abc123'))
+UNION ALL
+SELECT 'PASSWORD',              PASSWORD('Abc123'), LENGTH(PASSWORD('Abc123'));
+-- SHA1     → 40 chars
+-- MD5      → 32 chars
+-- PASSWORD → 41 chars</pre>
+    </div>
+  </div>
+
+  <!-- Tarjetas concepto -->
+  <div class="rel-grid">
+    <div class="rel-card">
+      <div class="rel-title">🔒 Hash irreversible</div>
+      <p>SHA1 y MD5 convierten un texto en una huella digital de longitud fija. No es posible recuperar la contraseña original a partir del hash almacenado.</p>
+      <div class="fk-note">SHA1('Abc123') → bec75d2e... (siempre igual)</div>
+    </div>
+    <div class="rel-card">
+      <div class="rel-title">✅ Verificación de contraseña</div>
+      <p>Para verificar una clave se hashea el valor ingresado y se compara con el almacenado. Si coinciden, la contraseña es correcta — sin revelar el texto plano.</p>
+      <div class="fk-note">WHERE clave = SHA1('clave_ingresada')</div>
+    </div>
+    <div class="rel-card">
+      <div class="rel-title">📏 VARCHAR(41) en columna Clave</div>
+      <p>SHA1 produce 40 chars, MD5 produce 32 chars y PASSWORD produce 41 chars. Se usa VARCHAR(41) para cubrir los tres algoritmos en la misma columna.</p>
+      <div class="fk-note">clave VARCHAR(41) — cubre SHA1, MD5 y PASSWORD</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECCIÓN 8 — ADMINISTRACIÓN DE USUARIOS Y HOST
+════════════════════════════════════════════ -->
+<section id="usuarios">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <div>
+      <h2>Administración de Usuarios y Concepto de HOST</h2>
+      <p>Gestión de cuentas, privilegios y el esquema de seguridad usuario@host de MariaDB</p>
+    </div>
+  </div>
+
+  <!-- Concepto HOST -->
+  <div class="rel-card" style="margin-bottom:28px; border-left-color:#1a3a5c;">
+    <div class="rel-title" style="font-size:1.05rem;">🌐 ¿Qué es el HOST en MySQL/MariaDB?</div>
+    <p>En MariaDB un usuario se identifica siempre por la combinación <strong>usuario + host</strong>. El host indica <em>desde dónde</em> se conecta ese usuario. Esto permite que el mismo nombre tenga permisos distintos según el origen de la conexión.</p>
+    <br>
+    <p><strong>Ejemplo:</strong> <code>root@localhost</code>, <code>root@127.0.0.1</code> y <code>root@::1</code> son tres cuentas <em>diferentes</em> aunque tengan el mismo nombre de usuario.</p>
+    <div class="fk-note">
+      root@localhost   → acceso solo desde la máquina local (socket Unix)<br>
+      root@127.0.0.1  → acceso desde IPv4 loopback<br>
+      root@::1        → acceso desde IPv6 loopback<br>
+      usuario@%       → % significa cualquier host (acceso remoto)
+    </div>
+  </div>
+
+  <!-- Tabla usuarios creados para el proyecto -->
+  <div class="dict-section">
+    <div class="dict-header c3">
+      <div><h3>👥 Usuarios creados para la base de datos licoreria</h3><p>Tres roles con permisos diferenciados según su función</p></div>
+    </div>
+    <div class="dict-table-wrap">
+      <table>
+        <thead>
+          <tr><th>Usuario</th><th>Host</th><th>Contraseña</th><th>Permisos asignados</th><th>Rol</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>gerente_lic</strong></td>
+            <td><code>localhost</code></td>
+            <td>gerente123</td>
+            <td>ALL PRIVILEGES ON licoreria.*</td>
+            <td>Administrador completo de la licorería</td>
+          </tr>
+          <tr>
+            <td><strong>vendedor_lic</strong></td>
+            <td><code>localhost</code></td>
+            <td>vendedor123</td>
+            <td>SELECT, INSERT en ventas y detalle_ventas; SELECT en clientes y productos</td>
+            <td>Puede registrar ventas y consultar catálogo</td>
+          </tr>
+          <tr>
+            <td><strike>consultor_lic</strike></td>
+            <td><code>localhost</code></td>
+            <td>(eliminado)</td>
+            <td>SELECT ON licoreria.* (fue revocado y el usuario eliminado)</td>
+            <td>Solo lectura — eliminado en la demostración</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Código SQL de administración -->
+  <div style="margin-bottom:28px;">
+    <div class="trigger-box">
+      <h3>Verificar usuario actual y listar usuarios existentes</h3>
+      <pre>
+SELECT USER();                          -- muestra: root@localhost
+SELECT User, Host FROM mysql.user       -- lista completa de cuentas
+ORDER BY User;                          -- ordenado por nombre</pre>
+
+      <h3 style="margin-top:20px;">Crear usuarios con host específico</h3>
+      <pre>
+-- La sintaxis siempre es: 'usuario'@'host'
+CREATE USER 'gerente_lic'@'localhost'  IDENTIFIED BY 'gerente123';
+CREATE USER 'vendedor_lic'@'localhost' IDENTIFIED BY 'vendedor123';
+CREATE USER 'consultor_lic'@'localhost' IDENTIFIED BY 'consultor123';</pre>
+
+      <h3 style="margin-top:20px;">Asignar permisos (GRANT)</h3>
+      <pre>
+-- Todos los privilegios en la base de datos licoreria
+GRANT ALL PRIVILEGES ON licoreria.* TO 'gerente_lic'@'localhost';
+
+-- Permisos específicos solo sobre tablas de ventas
+GRANT SELECT, INSERT, UPDATE ON licoreria.ventas         TO 'vendedor_lic'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON licoreria.detalle_ventas TO 'vendedor_lic'@'localhost';
+GRANT SELECT                 ON licoreria.clientes        TO 'vendedor_lic'@'localhost';
+GRANT SELECT                 ON licoreria.productos       TO 'vendedor_lic'@'localhost';
+
+-- Solo lectura sobre toda la base de datos
+GRANT SELECT ON licoreria.* TO 'consultor_lic'@'localhost';
+
+FLUSH PRIVILEGES;   -- aplica los cambios inmediatamente</pre>
+
+      <h3 style="margin-top:20px;">Ver los permisos de un usuario (SHOW GRANTS)</h3>
+      <pre>
+SHOW GRANTS FOR 'gerente_lic'@'localhost';
+-- Resultado:
+-- GRANT ALL PRIVILEGES ON `licoreria`.* TO 'gerente_lic'@'localhost'
+
+SHOW GRANTS FOR 'vendedor_lic'@'localhost';
+-- Resultado:
+-- GRANT SELECT, INSERT, UPDATE ON `licoreria`.`ventas` TO 'vendedor_lic'@'localhost'
+-- GRANT SELECT, INSERT, UPDATE ON `licoreria`.`detalle_ventas` TO ...</pre>
+
+      <h3 style="margin-top:20px;">Revocar permisos específicos (REVOKE)</h3>
+      <pre>
+-- Quitar permiso de actualizar ventas al vendedor
+REVOKE UPDATE ON licoreria.ventas         FROM 'vendedor_lic'@'localhost';
+REVOKE UPDATE ON licoreria.detalle_ventas FROM 'vendedor_lic'@'localhost';
+
+-- Verificar que UPDATE fue removido
+SHOW GRANTS FOR 'vendedor_lic'@'localhost';</pre>
+
+      <h3 style="margin-top:20px;">Modificar contraseña y eliminar usuario</h3>
+      <pre>
+-- Cambiar la contraseña del consultor
+SET PASSWORD FOR 'consultor_lic'@'localhost' = PASSWORD('nueva_clave789');
+
+-- Eliminar el usuario consultor
+DROP USER 'consultor_lic'@'localhost';
+
+-- Verificar que fue eliminado
+SELECT User, Host FROM mysql.user ORDER BY User;</pre>
+    </div>
+  </div>
+
+  <!-- Tarjetas de conceptos -->
+  <div class="rel-grid">
+    <div class="rel-card">
+      <div class="rel-title">🔑 GRANT — Asignar permisos</div>
+      <p>Otorga privilegios a un usuario. Se puede aplicar a todas las BDs (<code>*.*</code>), a una BD completa (<code>licoreria.*</code>) o a una tabla específica (<code>licoreria.ventas</code>).</p>
+      <div class="fk-note">GRANT permiso ON bd.tabla TO 'usuario'@'host';</div>
+    </div>
+    <div class="rel-card">
+      <div class="rel-title">🚫 REVOKE — Revocar permisos</div>
+      <p>Elimina un permiso específico que fue otorgado previamente. No elimina el usuario, solo le quita el acceso al recurso indicado.</p>
+      <div class="fk-note">REVOKE permiso ON bd.tabla FROM 'usuario'@'host';</div>
+    </div>
+    <div class="rel-card">
+      <div class="rel-title">🗑 DROP USER — Eliminar usuario</div>
+      <p>Borra permanentemente la cuenta de usuario del sistema. Automáticamente revoca todos sus permisos. Se debe especificar el host exacto.</p>
+      <div class="fk-note">DROP USER 'usuario'@'host';</div>
+    </div>
+    <div class="rel-card">
+      <div class="rel-title">🔄 FLUSH PRIVILEGES</div>
+      <p>Recarga las tablas de privilegios de la base de datos mysql para que los cambios de GRANT y REVOKE surtan efecto de forma inmediata en la sesión.</p>
+      <div class="fk-note">FLUSH PRIVILEGES; — ejecutar tras cambios de permisos</div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<footer>
+  <strong>Sistema de Gestión de Licorería</strong> · Juan Fernando Martinez Aguirre · CC 100145688<br>
+  Facultad de Ingeniería — Bases de Datos II · MariaDB 10.4
+</footer>
+
+<script>
+  function abrirLightbox() {
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function cerrarLightbox(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function descargarDiagrama() {
+    const link = document.createElement('a');
+    link.href = 'diagrama_mer.png';
+    link.download = 'MER_Licoreria.png';
+    link.click();
+  }
+
+  // Cerrar lightbox con tecla ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') cerrarLightbox();
+  });
+</script>
+
+</body>
+</html>
